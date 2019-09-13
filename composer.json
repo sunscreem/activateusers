@@ -1,0 +1,43 @@
+{
+    "name": "sunscreem/activate-users",
+    "description": "Craft CMS plugin to allow non-admin users permission to activate user accounts in the users page of the dashboard",
+    "type": "craft-plugin",
+    "version": "0.0.1",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "activateusers"
+    ],
+    "support": {
+        "docs": "https://github.com/sunscreem/activate-users/blob/master/README.md",
+        "issues": "https://github.com/sunscreem/activate-users/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Robert Cooper",
+            "homepage": "https://github.com/sunscreem"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0-RC1"
+    },
+    "autoload": {
+        "psr-4": {
+          "sunscreem\\activateusers\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "ActivateUsers",
+        "handle": "activate-users",
+        "hasCpSettings": true,
+        "hasCpSection": false,
+        "changelogUrl": "https://raw.githubusercontent.com/sunscreem/activate-users/master/CHANGELOG.md",
+        "components": {
+            "activateUsersService": "sunscreem\\activateusers\\services\\ActivateUsersService"
+        },
+        "class": "sunscreem\\activateusers\\ActivateUsers"
+    }
+}
