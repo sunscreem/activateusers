@@ -18,6 +18,7 @@ use craft\base\Plugin;
 use craft\elements\User;
 use craft\services\Plugins;
 use craft\events\PluginEvent;
+use craft\helpers\App;
 use craft\services\Elements;
 use yii\base\Event;
 
@@ -146,6 +147,8 @@ class ActivateUsers extends Plugin
     private function isAllowedDomain($domain)
     {
         $settings       = $this->getSettings();
+
+        // dd();
         dd($this->settings);
         $allowedDomains = array_filter(explode("\r\n", $settings->allowedDomains));
         $emailDomain    = strtolower(substr(strrchr($domain, '@'), 1));

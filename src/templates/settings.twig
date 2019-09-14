@@ -17,16 +17,6 @@
 
 {% do view.registerAssetBundle("sunscreem\\activateusers\\assetbundles\\activateusers\\ActivateUsersAsset") %}
 
-{{ forms.textField({
-    label: 'Some Field',
-    instructions: 'Enter some setting here.',
-    id: 'someAttribute',
-    name: 'someAttribute',
-    value: settings['someAttribute']})
-}}
-
-
-
 <h2>Settings</h2>
 
 {{ forms.textareaField({
@@ -86,7 +76,8 @@
 {{ forms.textField({
   label: 'Moderator Email Address',
   name: 'moderatorEmailAddress',
-  value: settings.moderatorEmailAddress
+  value: settings.moderatorEmailAddress,
+  errors: settings.getErrors('moderatorEmailAddress'),
 }) }}
 
 {{ forms.textField({
