@@ -2,7 +2,7 @@
     "name": "sunscreem/activate-users",
     "description": "Craft CMS plugin to allow non-admin users permission to activate user accounts in the users page of the dashboard",
     "type": "craft-plugin",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "keywords": [
         "craft",
         "cms",

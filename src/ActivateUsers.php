@@ -15,9 +15,10 @@ use sunscreem\activateusers\models\Settings;
 
 use Craft;
 use craft\base\Plugin;
+use craft\elements\User;
 use craft\services\Plugins;
 use craft\events\PluginEvent;
-
+use craft\services\Elements;
 use yii\base\Event;
 
 /**
@@ -45,7 +46,9 @@ class ActivateUsers extends Plugin
     /**
      * @var string
      */
-    public $schemaVersion = '0.0.2';
+    public $schemaVersion = '1.0.0';
+
+    // public $hasCpSettings = false;
 
     // Public Methods
     // =========================================================================
@@ -66,6 +69,45 @@ class ActivateUsers extends Plugin
                 }
             }
         );
+
+
+        Event::on(
+            Elements::class,
+            Elements::EVENT_BEFORE_SAVE_ELEMENT,
+            function(Event $event){
+                if ($event->element instanceof User) {
+
+                    $user=$event->element;
+                    $isNewuser = $event->isNew;
+
+                    dd($this->isAllowedDomain($user->email));
+                    // if ($isNewUser && !$this->isAllowedDomain($user->email))
+
+
+
+                    // dd('about to save a user');
+                }
+            }
+        );
+
+
+
+        // craft()->on('users.onBeforeSaveUser', function (Event $event)
+        // {
+        //     $settings  = $this->getSettings();
+        //     $user      = $event->params['user'];
+        //     $isNewUser = $event->params['isNewUser'];
+
+        //     if ($isNewUser && !$this->isAllowedDomain($user->email))
+        //     {
+        //         $user->pending = true;
+        //         // send the signup email to new customers only
+        //         if (!craft()->userSession->getUser() || !craft()->userSession->getUser()->isInGroup('tradeCustomers'))
+        //         {
+        //             craft()->pendingUser_email->signup($user);
+        //         }
+        //     }
+        // });
 
         Craft::info(
             Craft::t(
@@ -99,5 +141,15 @@ class ActivateUsers extends Plugin
                 'settings' => $this->getSettings()
             ]
         );
+    }
+
+    private function isAllowedDomain($domain)
+    {
+        $settings       = $this->getSettings();
+        dd($this->settings);
+        $allowedDomains = array_filter(explode("\r\n", $settings->allowedDomains));
+        $emailDomain    = strtolower(substr(strrchr($domain, '@'), 1));
+
+        return in_array($emailDomain, $allowedDomains);
     }
 }
