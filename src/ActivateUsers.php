@@ -21,6 +21,7 @@ use craft\services\Plugins;
 use craft\events\PluginEvent;
 use craft\helpers\App;
 use craft\services\Elements;
+use craft\services\Users;
 use sunscreem\activateusers\services\ActivateUsersService;
 use yii\base\Event;
 
@@ -87,6 +88,34 @@ class ActivateUsers extends Plugin
                 }
             }
         );
+
+
+        Event::on(
+            User::class,
+            User::EVENT_AFTER_SAVE,
+            function (Event $event) {
+
+                $newuser = $event->sender;
+                $currentUser = Craft::$app->getUser()->getIdentity();
+
+                if ($this->settings->notifyModerator && $event->isNew  && !$this->isAllowedDomain($newuser->email)) {
+
+                    //we only notify robertson if there isn't a user signed in just now (i.e a trade customer adding an employee)
+                    if (!$currentUser) {
+                        $this->activateUsersService->notifyModerator($newuser);
+                    }
+                }
+            }
+        );
+
+        Event::on(
+            Users::class,
+            Users::EVENT_AFTER_ACTIVATE_USER,
+            function (Event $event) {
+                $this->activateUsersService->notifyModerator($event->user);
+                }
+        );
+
 
         Craft::info(
             Craft::t(
