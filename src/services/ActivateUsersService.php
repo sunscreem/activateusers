@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ActivateUsers plugin for Craft CMS 3.x
  *
@@ -14,6 +15,7 @@ use sunscreem\activateusers\ActivateUsers;
 
 use Craft;
 use craft\base\Component;
+use craft\elements\User;
 
 /**
  * @author    Robert Cooper
@@ -22,19 +24,33 @@ use craft\base\Component;
  */
 class ActivateUsersService extends Component
 {
+    // public $email;
+    // public $emailSettings;
+    public $pluginSettings;
+
     // Public Methods
     // =========================================================================
 
-    /*
-     * @return mixed
-     */
-    public function exampleService()
+    public function __construct()
     {
-        $result = 'something';
-        // Check our Plugin's settings for `someAttribute`
-        if (ActivateUsers::$plugin->getSettings()->someAttribute) {
-        }
+        // $this->email = new EmailModel();
+        // $this->emailSettings = craft()->email->getSettings();
 
-        return $result;
+        // $this->email->fromEmail = $this->emailSettings['emailAddress'];
+        // $this->email->sender = $this->emailSettings['emailAddress'];
+        // $this->email->fromName = $this->emailSettings['senderName'];
+
+        $this->pluginSettings = ActivateUsers::getInstance()->settings;
+    }
+
+    public function signup(User $user)
+    {
+        return Craft::$app
+            ->getMailer()
+            ->compose()
+            ->setTo($user->email)
+            ->setSubject($this->pluginSettings->signupEmailSubject)
+            ->setHtmlBody(Craft::$app->view->renderString($this->pluginSettings->signupEmailBody, ['user' => $user]))
+            ->send();
     }
 }

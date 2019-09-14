@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ActivateUsers plugin for Craft CMS 3.x
  *
@@ -20,6 +21,7 @@ use craft\services\Plugins;
 use craft\events\PluginEvent;
 use craft\helpers\App;
 use craft\services\Elements;
+use sunscreem\activateusers\services\ActivateUsersService;
 use yii\base\Event;
 
 /**
@@ -62,53 +64,29 @@ class ActivateUsers extends Plugin
         parent::init();
         self::$plugin = $this;
 
+        $this->setComponents([
+            'ActivateUsersService' => ActivateUsersService::class,
+        ]);
+
         Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_INSTALL_PLUGIN,
-            function (PluginEvent $event) {
-                if ($event->plugin === $this) {
+            User::class,
+            User::EVENT_BEFORE_SAVE,
+            function (Event $event) {
+
+                $newuser = $event->sender;
+                $currentUser = Craft::$app->getUser()->getIdentity();
+
+                if ($event->isNew && !$this->isAllowedDomain($newuser->email)) {
+
+                    $newuser->pending  = true;
+
+                    if (!$currentUser || !$currentUser->isInGroup('tradeCustomers')) {
+
+                        $this->activateUsersService->signup($newuser);
+                    }
                 }
             }
         );
-
-
-        Event::on(
-            Elements::class,
-            Elements::EVENT_BEFORE_SAVE_ELEMENT,
-            function(Event $event){
-                if ($event->element instanceof User) {
-
-                    $user=$event->element;
-                    $isNewuser = $event->isNew;
-
-                    dd($this->isAllowedDomain($user->email));
-                    // if ($isNewUser && !$this->isAllowedDomain($user->email))
-
-
-
-                    // dd('about to save a user');
-                }
-            }
-        );
-
-
-
-        // craft()->on('users.onBeforeSaveUser', function (Event $event)
-        // {
-        //     $settings  = $this->getSettings();
-        //     $user      = $event->params['user'];
-        //     $isNewUser = $event->params['isNewUser'];
-
-        //     if ($isNewUser && !$this->isAllowedDomain($user->email))
-        //     {
-        //         $user->pending = true;
-        //         // send the signup email to new customers only
-        //         if (!craft()->userSession->getUser() || !craft()->userSession->getUser()->isInGroup('tradeCustomers'))
-        //         {
-        //             craft()->pendingUser_email->signup($user);
-        //         }
-        //     }
-        // });
 
         Craft::info(
             Craft::t(
@@ -146,11 +124,7 @@ class ActivateUsers extends Plugin
 
     private function isAllowedDomain($domain)
     {
-        $settings       = $this->getSettings();
-
-        // dd();
-        dd($this->settings);
-        $allowedDomains = array_filter(explode("\r\n", $settings->allowedDomains));
+        $allowedDomains = array_filter(explode("\r\n", $this->settings->allowedDomains));
         $emailDomain    = strtolower(substr(strrchr($domain, '@'), 1));
 
         return in_array($emailDomain, $allowedDomains);
