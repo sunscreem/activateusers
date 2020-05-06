@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2019 Robert Cooper
  */
 
-namespace sunscreem\activateusers\assetbundles\ActivateUsers;
+namespace sunscreem\activateusers\assetbundles\activateusers;
 
 use Craft;
 use craft\web\AssetBundle;
